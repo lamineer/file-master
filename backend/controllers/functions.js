@@ -10,3 +10,17 @@ exports.generateString = (length) => {
 
     return result;
 }
+
+exports.multipartParser = (body) => {
+  body = body.split('\r\n');
+  const jsonBody = {};
+  for (let i = 0; i < body.length; i++) {
+    const arrayPart = body[i];
+    if (arrayPart.includes('name=')) {
+      const fieldName = arrayPart.substring(
+        arrayPart.indexOf('name=') + 6, arrayPart.lastIndexOf('"'));
+      jsonBody[fieldName] = body[i + 2];
+    }
+  }
+  return {body, jsonBody};
+}

@@ -1,4 +1,6 @@
 const db = require('../classes/Database').db;
+const fn = require('./functions');
+const fs = require('fs');
 
 exports.getFiles = (req, res) => {
     try{
@@ -13,5 +15,15 @@ exports.getFiles = (req, res) => {
 }
 
 exports.uploadFile = (req, res) => {
-
+    var fileData = [], totalBytes = 0;
+    console.log(req.headers)
+    var file = fs.createWriteStream(`./uploads/${res.locals.user_id}/file.png`)
+    req.on('data', function(chunk){
+        file.write(chunk)
+        totalBytes += chunk.length;
+    })
+    req.on('end', function(){
+        res.send("File uploaded!")
+        console.log("File Upload Ended!")
+    })
 }
