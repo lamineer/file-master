@@ -1,6 +1,15 @@
 // declare all characters
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+exports.checkFileExistance = (file) => {
+  if(fs.existsSync(filePath+fileData.fileName)){
+    return true
+  } else {
+    return false
+  }
+}
+
+
 exports.generateString = (length) => {
     let result = '';
     const charactersLength = characters.length;
@@ -22,10 +31,9 @@ exports.getBoundary = (header) => {
 }
 
 exports.getFileData = (reader) => {
-  var fileObject = {
-    fileType: ""
-  }
+  var fileObject = {}
   console.log(reader)
+  fileObject.fileSize = reader.length
   fileObject.fileName = reader.slice(reader.indexOf("filename=\"") + "filename=\"".length, reader.indexOf("\"\r\nContent-Type")).toString();
   fileObject.fileType = reader.slice(reader.indexOf("Content-Type: ") + "Content-Type: ".length, reader.indexOf("\r\n\r\n")).toString()
   boundary = reader.slice(0,reader.indexOf('\r\n'));

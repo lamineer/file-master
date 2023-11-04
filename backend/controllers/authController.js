@@ -38,6 +38,7 @@ exports.login = (req, res) => {
                         var token = fn.generateString(128);
                         var expireTime = Date.now() + (24*60*60*1000)
                         db.run("INSERT INTO user_sessions (user_id, session_token, expirationTime) VALUES (?, ?, ?)", [rows.id, token, expireTime])
+                        db.run("UPDATE users SET lastLogin = ? WHERE user_id = ?", [ Date.now(), rows.id ])
                         res.json({ session_token: token})
                     } else {
                         res.json({ error: "Wrong username or password!"})

@@ -18,24 +18,42 @@ exports.getFiles = (req, res) => {
 
 exports.uploadFile = (req, res) => {
     try{
-        var totalBytes = 0;
         var temp = path.resolve(os.tmpdir(), fn.generateString(16));
         if(req.headers["content-type"].includes("multipart/form-data")){
             var writeStream = fs.createWriteStream(temp)
             req.pipe(writeStream) 
             writeStream.on("finish", () => {
-                newData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
-                if(newData.fileName == '' && newData.fileType == ''){
-                    console.log(newData)
+                fileData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
+                if(fileData.fileName == '' && fileData.fileType == ''){
                     res.send("Filename or fileType is missing!")
                 } else {
-                    fs.writeFileSync(`./uploads/${res.locals.user_id}/${newData.fileName}`, newData.data)
-                    res.send(`File ${newData.fileName} uploaded! Total file size: ${totalBytes} bytes`)
+                    var filePath = `./uploads/${res.locals.user_id}/`
+                    var count = 0,
+                        tempRegex = fileData.fileName.match(/(?<fileName>.+?)(?<fileExtension>\.[^.]*$|$)/s);;
+                    while(fs.existsSync(filePath+fileData.fileName)){
+                        
+                        fileData.fileName = `${tempRegex.groups.fileName} (${count})${tempRegex.groups.fileExtension}`;
+                        count++;
+                    }
+                    fs.writeFileSync(`${filePath+fileData.fileName}`, fileData.data)
+                    db.run(`INSERT INTO userFiles(fileName, fileType, user_id, fileSize, uploadTime) VALUES (?, ?, ?, ?, ?)`, [
+                        fileData.fileName, 
+                        fileData.fileType,
+                        res.locals.user_id,
+                        fileData.fileSize,
+                        Date.now()
+                    ], (err) => {
+                        if(err) {
+                            fs.unlink(`${filePath+fileData.fileName}`, fsErr => console.log(fsErr))
+                            res.send(`${fileData.fileName} upload was unsuccessful`)
+                        }
+                        else res.send(`${fileData.fileName} uploaded! Total file size: ${fileData.fileSize} bytes`)
+                    })
                 }
                 fs.unlinkSync(temp);
             })
         } else {
-            res.send("No file was inputted!")
+            res.send("This is not a file!")
         }
     } catch (err) {
         console.error(err)
