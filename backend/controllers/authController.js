@@ -28,27 +28,31 @@ exports.checkAuth = (req, res, next) => {
 exports.login = (req, res) => {
     try{
         const { username, password } = req.body;
-        db.get("SELECT * FROM users WHERE username = ?", [ username ], (err, rows) => {
-            if(err) {
-                console.error(err)
-                res.send("Error has occured in login! Please try again!")
-            } 
-            if (rows) {
-                bcrypt.compare(password, rows.password, (err, result) => {
-                    if(result){
-                        var token = fn.generateString(128);
-                        var expireTime = Date.now() + (24*60*60*1000)
-                        db.run("INSERT INTO user_sessions (user_id, session_token, expirationTime) VALUES (?, ?, ?)", [rows.id, token, expireTime])
-                        db.run("UPDATE users SET lastLogin = ? WHERE user_id = ?", [ Date.now(), rows.id ])
-                        res.json({ session_token: token, expireTime: expireTime})
-                    } else {
-                        res.json({ error: "Wrong username or password!"})
-                    }
-                })
-            } else {
-                res.json( { error: "User was not found!" })
-            }
-        })
+        if(username == "" || password == ""){
+            res.json({error: "Username or password missing."})
+        } else {
+            db.get("SELECT * FROM users WHERE username = ?", [ username ], (err, rows) => {
+                if(err) {
+                    console.error(err)
+                    res.send("Error has occured in login! Please try again!")
+                } 
+                if (rows) {
+                    bcrypt.compare(password, rows.password, (err, result) => {
+                        if(result){
+                            var token = fn.generateString(128);
+                            var expireTime = Date.now() + (24*60*60*1000)
+                            db.run("INSERT INTO user_sessions (user_id, session_token, expirationTime) VALUES (?, ?, ?)", [rows.id, token, expireTime])
+                            db.run("UPDATE users SET lastLogin = ? WHERE id = ?", [ Date.now(), rows.id ])
+                            res.json({ session_token: token, expireTime: expireTime})
+                        } else {
+                            res.json({ error: "Wrong username or password!"})
+                        }
+                    })
+                } else {
+                    res.json( { error: "User was not found!" })
+                }
+            })
+        }
     } catch (err) {
         console.error(err)
     }
