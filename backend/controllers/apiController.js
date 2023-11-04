@@ -78,12 +78,16 @@ exports.uploadFile = (req, res) => {
 exports.deleteFile = (req, res) => {
     try{
         const { file_id } = req.params;
+        var filePath = `./uploads/${res.locals.user_id}/`
         db.get("SELECT * FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err, rows) => {
             if(err) res.send("Couldn't find the file, that you're trying to delete")
             else {
                 db.run("DELETE FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err) => {
                     if(err) res.send("Error occured while deleting file! Please try again!")
-                    else res.send("File was deleted successfuly!")
+                    else {
+                        fs.unlink(`${filePath+rows.fileName}`, fsErr => console.log(fsErr));
+                        res.send("File was deleted successfuly!")
+                    }
                 })
             }
         })
