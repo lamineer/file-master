@@ -25,7 +25,7 @@ exports.getFileData = (reader) => {
   var fileObject = {
     fileType: ""
   }
-
+  console.log(reader)
   fileObject.fileName = reader.slice(reader.indexOf("filename=\"") + "filename=\"".length, reader.indexOf("\"\r\nContent-Type")).toString();
   fileObject.fileType = reader.slice(reader.indexOf("Content-Type: ") + "Content-Type: ".length, reader.indexOf("\r\n\r\n")).toString()
   boundary = reader.slice(0,reader.indexOf('\r\n'));
