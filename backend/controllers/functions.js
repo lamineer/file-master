@@ -1,15 +1,6 @@
 // declare all characters
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-exports.checkFileExistance = (file) => {
-  if(fs.existsSync(filePath+fileData.fileName)){
-    return true
-  } else {
-    return false
-  }
-}
-
-
 exports.generateString = (length) => {
     let result = '';
     const charactersLength = characters.length;
