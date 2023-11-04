@@ -21,8 +21,9 @@ exports.uploadFile = (req, res) => {
         var totalBytes = 0;
         var temp = path.resolve(os.tmpdir(), fn.generateString(16));
         if(req.headers["content-type"].includes("multipart/form-data")){
-            req.pipe(fs.createWriteStream(temp, (err) => console.log(err))) 
-            req.on('end', function(){
+            var writeStream = fs.createWriteStream(temp)
+            req.pipe(writeStream) 
+            writeStream.on("finish", () => {
                 newData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
                 if(newData.fileName == '' && newData.fileType == ''){
                     console.log(newData)
