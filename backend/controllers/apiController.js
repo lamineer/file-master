@@ -4,6 +4,21 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+exports.downloadFile = (req, res) => {
+    try{
+        const { file_id } = req.params;
+        var filePath = `./uploads/${res.locals.user_id}/`
+        db.get("SELECT * FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id], (err, rows) => {
+            if(err) res.send("Error occured while trying to download file!")
+            if(rows) res.download(`${filePath+rows.fileName}`)
+            else res.send("File was not found!")
+        })
+    } catch (err) {
+        console.log(err)
+        res.send(err)
+    }
+} 
+
 exports.getFiles = (req, res) => {
     try{
         db.all("SELECT * FROM userFiles WHERE user_id = ?", [ res.locals.user_id ], (err, rows) => {
