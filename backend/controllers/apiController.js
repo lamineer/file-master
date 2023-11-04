@@ -31,7 +31,6 @@ exports.uploadFile = (req, res) => {
                     var count = 0,
                         tempRegex = fileData.fileName.match(/(?<fileName>.+?)(?<fileExtension>\.[^.]*$|$)/s);;
                     while(fs.existsSync(filePath+fileData.fileName)){
-                        
                         fileData.fileName = `${tempRegex.groups.fileName} (${count})${tempRegex.groups.fileExtension}`;
                         count++;
                     }
@@ -59,5 +58,22 @@ exports.uploadFile = (req, res) => {
         console.error(err)
         res.send("Error occured while uploading file! Please try again!")
     }
+}
 
+exports.deleteFile = (req, res) => {
+    try{
+        const { file_id } = req.params;
+        db.get("SELECT * FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err, rows) => {
+            if(err) res.send("Couldn't find the file, that you're trying to delete")
+            else {
+                db.run("DELETE FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err) => {
+                    if(err) res.send("Error occured while deleting file! Please try again!")
+                    else res.send("File was deleted successfuly!")
+                })
+            }
+        })
+    } catch (err) {
+        console.log(err)
+        res.send("Error occured while deleting file! Please try again!")
+    }
 }
