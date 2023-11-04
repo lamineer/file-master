@@ -7,13 +7,21 @@ body{
 
 table, th, td {
     border: 1px solid black;
+    text-align: center;
 }
 
-#login, #file-list, .header{
+#file-list{
+    text-align: center;
+}
+
+#file-upload{
+    padding-top: 20px;
+}
+
+#login, #main, .header{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     height: 100%;
 }
 
@@ -22,6 +30,19 @@ table, th, td {
     flex-direction: column;
 }
 
-#file-list-table{
-    width: 80%;
+#navbar{
+    display: flex;
+    padding: 10px 40px;
+    justify-content: right;
+    align-self: end;
+}
+
+#navbar a:hover{
+    cursor: pointer;
+    color: blue;
+
+}
+
+.spacer{
+    margin: 0 5px;
 }

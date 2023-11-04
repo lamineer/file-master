@@ -61,7 +61,7 @@ exports.uploadFile = (req, res) => {
                             fs.unlink(`${filePath+fileData.fileName}`, fsErr => console.log(fsErr))
                             res.send(`${fileData.fileName} upload was unsuccessful`)
                         }
-                        else res.send(`${fileData.fileName} uploaded! Total file size: ${fileData.fileSize} bytes`)
+                        else res.json({ message: `${fileData.fileName} uploaded! Total file size: ${fileData.fileSize} bytes`, code: 200})
                     })
                 }
                 fs.unlinkSync(temp);
