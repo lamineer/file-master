@@ -1,9 +1,9 @@
 // Module Requirements
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
-const db = require('./classes/Database').initDb()
 const fs = require('fs');
 const express = require('express');
+require('./classes/Database').initDb();
 
 // Init Express Application
 const app = express();

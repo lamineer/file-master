@@ -1,6 +1,8 @@
 const db = require('../classes/Database').db;
 const fn = require('./functions');
 const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 exports.getFiles = (req, res) => {
     try{
@@ -15,15 +17,21 @@ exports.getFiles = (req, res) => {
 }
 
 exports.uploadFile = (req, res) => {
-    var fileData = [], totalBytes = 0;
-    console.log(req.headers)
-    var file = fs.createWriteStream(`./uploads/${res.locals.user_id}/file.png`)
-    req.on('data', function(chunk){
-        file.write(chunk)
-        totalBytes += chunk.length;
-    })
-    req.on('end', function(){
-        res.send("File uploaded!")
-        console.log("File Upload Ended!")
-    })
+    var totalBytes = 0;
+    var temp = path.resolve(os.tmpdir(), 'temp' + Math.floor(Math.random() * 10));
+    if(req.headers["content-type"].includes("multipart/form-data")){
+        req.pipe(fs.createWriteStream(temp))
+        req.on('end', function(){
+            newData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
+            if(newData.fileName == ''){
+                res.send("Filename is missing!")
+            } else {
+                fs.writeFileSync(`./uploads/${res.locals.user_id}/${newData.fileName}`, newData.data)
+                res.send(`File ${newData.fileName} uploaded! Total file size: ${totalBytes} bytes`)
+            }
+        })
+    } else {
+        res.send("No file was inputted!")
+    }
+
 }

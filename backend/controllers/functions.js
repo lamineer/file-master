@@ -11,6 +11,29 @@ exports.generateString = (length) => {
     return result;
 }
 
+exports.getBoundary = (header) => {
+  var headerVars = header.split(";")
+  for(var headVar of headerVars){
+    if(headVar.includes("boundary")){
+      return "--" + headVar.split("=")[1]
+    }
+  }
+  return "No boundary found!"
+}
+
+exports.getFileData = (reader) => {
+  var fileObject = {
+    fileType: ""
+  }
+
+  fileObject.fileName = reader.slice(reader.indexOf("filename=\"") + "filename=\"".length, reader.indexOf("\"\r\nContent-Type")).toString();
+  fileObject.fileType = reader.slice(reader.indexOf("Content-Type: ") + "Content-Type: ".length, reader.indexOf("\r\n\r\n")).toString()
+  boundary = reader.slice(0,reader.indexOf('\r\n'));
+  fileObject.data = reader.slice(reader.indexOf('\r\n\r\n') + '\r\n\r\n'.length, reader.lastIndexOf(Buffer.from('\r\n') + boundary));
+
+  return fileObject
+}
+
 exports.multipartParser = (body) => {
   body = body.split('\r\n');
   const jsonBody = {};
