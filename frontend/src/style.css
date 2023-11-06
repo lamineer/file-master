@@ -123,3 +123,7 @@ table, th, td {
 .spacer{
     margin: 0 5px;
 }
+
+[onclick]{
+    cursor: pointer;
+}

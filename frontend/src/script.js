@@ -1,4 +1,7 @@
 var host = "http://localhost/"
+var fileList = []
+    order = 1;
+
 async function login(){
 
     let username = document.getElementById("loginUsername").value;
@@ -122,7 +125,8 @@ async function getFiles(){
 }
 
 async function generateTable(){
-    var fileList = await getFiles()
+    if(!fileList.length) fileList = await getFiles();
+
     var tableBody = document.getElementById("file-list-body")
     tableBody.innerHTML = ""
     for(var file of fileList){
@@ -138,6 +142,16 @@ async function generateTable(){
         </tr>
         `
     }
+}
+
+function sortTable(column){
+    fileList = fileList.sort((file1, file2) => {
+        if(file1[column] < file2[column]) return -1 * order;
+        if(file1[column] > file2[column]) return 1 * order;
+        return 0
+    })
+    order = -order
+    generateTable()
 }
 
 async function uploadFile(){
