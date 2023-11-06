@@ -23,7 +23,7 @@ exports.getBoundary = (header) => {
 
 exports.getFileData = (reader) => {
   var fileObject = {}
-  console.log(reader)
+  
   fileObject.fileSize = reader.length
   fileObject.fileName = reader.slice(reader.indexOf("filename=\"") + "filename=\"".length, reader.indexOf("\"\r\nContent-Type")).toString();
   fileObject.fileType = reader.slice(reader.indexOf("Content-Type: ") + "Content-Type: ".length, reader.indexOf("\r\n\r\n")).toString()

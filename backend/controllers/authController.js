@@ -66,7 +66,7 @@ exports.logout = (req, res) => {
                 console.error(err)
                 res.send("Error has occured in query!")
             } else {
-                res.send("Logout was successful!")
+                res.json({ message: "Logout was successful!", code: 200})
             }
         })
     } catch (err) {
