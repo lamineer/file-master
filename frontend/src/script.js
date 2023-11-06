@@ -1,7 +1,14 @@
 var host = "http://localhost/"
-async function login(username, password){
+async function login(){
+
+    let username = document.getElementById("loginUsername").value;
+    let password = document.getElementById("loginPassword").value;
+
     const response = await fetch(host+"auth/login", {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
         body: JSON.stringify({
             username: username,
             password: password
@@ -11,10 +18,50 @@ async function login(username, password){
     const result = await response.json()
 
     if(result.error){
-        console.log(result.error)
+        document.getElementsByClassName("login-message")[0].innerHTML = result.error;
     } else {
         document.cookie = "token=" + result.session_token + ";expires=" + new Date(result.expireTime).toUTCString() + ";";
         location.href = "/";
+    }
+}
+
+async function register(){
+
+    let username = document.getElementById("registerUsername").value;
+    let password = document.getElementById("registerPassword").value;
+
+    const response = await fetch(host+"auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    })
+
+    const result = await response.json();
+    console.log(result)
+    const message = document.getElementsByClassName("register-message")[0]
+    message.innerHTML = result.message;
+    if(result.code == 200) message.style.color = "black"
+    else message.style.color = "red"
+
+}
+
+async function logout(){
+    const response = await fetch(host+"auth/logout", {
+        method: "GET"
+    })
+
+    const result = await response.json()
+
+    if(result.error){
+        console.log(result.error)
+    } else {
+        delete_cookie("token");
+        location.href = "/login.html";
     }
 }
 
@@ -36,10 +83,24 @@ function delete_cookie( name, path, domain ) {
       document.cookie = name + "=" +
         ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
     }
-  }
+}
 
-async function downloadFile(id){
+function downloadFile(id){
+    window.open(host+"/api/file/"+id, "_blank")
+}
 
+function showRegister(value){
+    var loginDiv = document.getElementById("login");
+    var registerDiv = document.getElementById("register");
+    if (value == 1) {
+        loginDiv.style.display = "none"
+        registerDiv.style.display = "block"
+        document.getElementsByClassName("login-header")[0].innerHTML = "File Master - Register"
+    } else {
+        loginDiv.style.display = "block"
+        registerDiv.style.display = "none"
+        document.getElementsByClassName("login-header")[0].innerHTML = "File Master - Login"
+    }
 }
 
 function get_cookie(name){
@@ -73,7 +134,7 @@ async function generateTable(){
             <td>${file.fileType}</td>
             <td>${file.fileSize}</td>
             <td>${date.toGMTString()}</td>
-            <td><button onClick="downloadFile(${file.id})">Download</button><span class="spacer"></span><button onClick="deleteFile(${file.id})">Delete</button></td>
+            <td><button class="custom-button" onClick="downloadFile(${file.id})">Download</button><span class="spacer"></span><button class="custom-button" onClick="deleteFile(${file.id})">Delete</button></td>
         </tr>
         `
     }
@@ -81,21 +142,27 @@ async function generateTable(){
 
 async function uploadFile(){
 
-    let file = document.getElementById("file").files[0]
+    var uploadForm = document.getElementById("file-upload")
+    var file = document.getElementById("file")
+    
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file.files[0]);
 
-    const response = await fetch(host+"api/uploadfile", {
-        method: "POST",
-        body: formData
+    uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const response = await fetch(host+"api/uploadfile", {
+            method: "POST",
+            body: formData
+        })
+    
+        const result = await response.json()
+    
+        if(result.code == 200){
+            console.log(result)
+            location.reload()
+        }
     })
 
-    const result = await response.json()
-
-    if(result.code == 200){
-        console.log(result)
-        generateTable()
-    }
 }
 
 if(document.location.pathname.includes("login")){
@@ -104,17 +171,25 @@ if(document.location.pathname.includes("login")){
         location.href = "/";
     }
     
-    let loginForm = document.getElementById("loginForm");
+    var loginForm = document.getElementById("loginForm");
+    var registerForm = document.getElementById("registerForm");
 
     loginForm.addEventListener("submit", (e) => {
         e.preventDefault();
-    
-        let username = document.getElementById("username").value;
-        let password = document.getElementById("password").value;
 
         try{
-            login(username, password)
+            login();
         } catch (err) {
+            console.log(err)
+        }
+    })
+
+    registerForm.addEventListener("submit", e => {
+        e.preventDefault();
+        
+        try{
+            register();
+        } catch (err){
             console.log(err)
         }
     })

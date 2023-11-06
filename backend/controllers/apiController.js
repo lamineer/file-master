@@ -43,6 +43,7 @@ exports.uploadFile = (req, res) => {
                     res.send("Filename or fileType is missing!")
                 } else {
                     var filePath = `./uploads/${res.locals.user_id}/`
+                    if(!fs.existsSync(filePath)) fs.mkdirSync(filePath)
                     var count = 0,
                         tempRegex = fileData.fileName.match(/(?<fileName>.+?)(?<fileExtension>\.[^.]*$|$)/s);;
                     while(fs.existsSync(filePath+fileData.fileName)){

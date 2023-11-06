@@ -1,13 +1,32 @@
 body{
     width: 100%;
     height: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    background-color: darkseagreen;
+    font-family: 'Courier New', monospace;
+}
+
+body, form, html{
     margin: 0;
     padding: 0;
 }
 
+input#file{
+    color:white;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+table{
+    border-radius: 5px;
+}
 table, th, td {
     border: 1px solid black;
     text-align: center;
+    background-color: dimgray;
+    color: white;
 }
 
 #file-list{
@@ -15,19 +34,42 @@ table, th, td {
 }
 
 #file-upload{
-    padding-top: 20px;
+    margin-top: 20px;
+    padding: 0 10px;
+    background-color: dimgray;
+    border-radius: 5px;
 }
 
-#login, #main, .header{
+.custom-button, #file-upload button, input::file-selector-button{
+    padding: 8px 15px;
+    border: 0;
+    border-radius: 5px;
+    color: white;
+    background-color: cadetblue;
+    font-family: 'Courier New', monospace;
+}
+
+.custom-button:hover, #file-upload button:hover, input::file-selector-button:hover{
+    background-color: darkgrey;
+    cursor: pointer;
+}
+
+#login, #main, #register, .header{
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100%;
 }
 
-#login form.login-form{
+#login form.login-form, #register form.register-form{
     display: flex;
     flex-direction: column;
+}
+
+#login form input, #register form input{
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 0;
+    padding: 5px;
 }
 
 #navbar{
@@ -41,6 +83,41 @@ table, th, td {
     cursor: pointer;
     color: blue;
 
+}
+
+#register{
+    display: none;
+}
+
+.login-buttons{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.login-buttons button, .login-buttons div{
+    width: 100%;
+    margin: 5px;
+}
+
+.login-message{
+    color: red;
+}
+
+.register-buttons{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.register-buttons a{
+    margin-top: 10px;
+}
+
+.register-buttons a:hover{
+    color: darkblue;
+    cursor: pointer;
 }
 
 .spacer{

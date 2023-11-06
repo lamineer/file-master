@@ -9,16 +9,30 @@
         <link rel="stylesheet" href="src/style.css">
     </head>
     <body>
-        <div id="login">
-            <h1 class="login-header">File Master</h1>
-            <form id="loginForm" class="login-form" action="">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username...">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password...">
-                <button>Login</button>
-                <button>Register</button>
-            </form>
+        <div id="main">
+            <h1 class="login-header">File Master - Login</h1>
+            <div id="login">
+                <div class="login-message"></div>
+                <form id="loginForm" class="login-form" action="">
+                    <input type="text" id="loginUsername" name="loginUsername" placeholder="Username">
+                    <input type="password" id="loginPassword" name="loginPassword" placeholder="Password">
+                    <div class="login-buttons">
+                        <button class="custom-button">Login</button>
+                        <div class="custom-button" onClick="showRegister(1);">Register</div>
+                    </div>
+                </form>
+            </div>
+            <div id="register">
+                <div class="register-message"></div>
+                <form id="registerForm" class="register-form" action="">
+                    <input type="text" id="registerUsername" name="registerUsername" placeholder="Username">
+                    <input type="password" id="registerPassword" name="registerPassword" placeholder="Password">
+                    <div class="register-buttons">
+                        <button class="custom-button">Register</button>
+                        <a onClick="showRegister(0);">Back to login page</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </body>
     <footer>

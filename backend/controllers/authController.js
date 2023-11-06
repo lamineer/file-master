@@ -10,7 +10,7 @@ exports.checkAuth = (req, res, next) => {
         db.get("SELECT user_id FROM user_sessions WHERE session_token = ? AND expirationTime > ?", [ token, currentTime ], (err, rows) => {
             if(err) {
                 console.error(err)
-                res.send("Error has occured in authentication!")
+                res.json({ error: "Error occured while checking authentication!", code: 500})
             } else {
                 if(rows){
                     res.locals.user_id = rows.user_id
@@ -29,12 +29,12 @@ exports.login = (req, res) => {
     try{
         const { username, password } = req.body;
         if(username == "" || password == ""){
-            res.json({error: "Username or password missing."})
+            res.json({error: "Username or password missing.", code: 404})
         } else {
             db.get("SELECT * FROM users WHERE username = ?", [ username ], (err, rows) => {
                 if(err) {
                     console.error(err)
-                    res.send("Error has occured in login! Please try again!")
+                    res.json({ error: "Error occured while logging in!", code: 500})
                 } 
                 if (rows) {
                     bcrypt.compare(password, rows.password, (err, result) => {
@@ -43,13 +43,13 @@ exports.login = (req, res) => {
                             var expireTime = Date.now() + (24*60*60*1000)
                             db.run("INSERT INTO user_sessions (user_id, session_token, expirationTime) VALUES (?, ?, ?)", [rows.id, token, expireTime])
                             db.run("UPDATE users SET lastLogin = ? WHERE id = ?", [ Date.now(), rows.id ])
-                            res.json({ session_token: token, expireTime: expireTime})
+                            res.json({ session_token: token, expireTime: expireTime, code: 200})
                         } else {
-                            res.json({ error: "Wrong username or password!"})
+                            res.json({ error: "Wrong username or password!", code: 500})
                         }
                     })
                 } else {
-                    res.json( { error: "User was not found!" })
+                    res.json( { error: "User was not found!", code: 404 })
                 }
             })
         }
@@ -64,7 +64,7 @@ exports.logout = (req, res) => {
         db.run("UPDATE user_sessions SET expirationTime = ? WHERE session_token = ?", [ Date.now(), token ], (err, rows) => {
             if(err){
                 console.error(err)
-                res.send("Error has occured in query!")
+                res.json({ message: "Logout failed", code: 500})
             } else {
                 res.json({ message: "Logout was successful!", code: 200})
             }
@@ -80,10 +80,10 @@ exports.registerUser = (req, res) => {
         bcrypt.hash(password, 12, (err, hash) => {
             db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hash], (err) => {
                 if(err) {
-                    if(err.errno == 19) res.send(username + " user is already registered!")
-                    else res.send("Error: Adding user failed!")
+                    if(err.errno == 19) res.json({ message: "Username: <b>" + username + "</b> is already registered!", code: 409})
+                    else res.json({ message: username + " failed to register!", code: 500 })
                 }
-                else res.send("USER ADDED!")
+                else res.json({ message: username + " was registered successfuly!", code: 200 })
             });
         });
     } catch (err) {
