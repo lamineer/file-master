@@ -8,7 +8,6 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY ./frontend /usr/share/nginx/html
 COPY ./backend /usr/src/app/
 
 WORKDIR /usr/src/app/backend
@@ -24,8 +23,10 @@ WORKDIR /usr/src/app/backend
 
 RUN npm install
 
+#RUN chown -R node:node /usr/src/app/backend
+#RUN chmod -R 755 /usr/src/app/backend
 # Run the application as a non-root user.
-USER node
+#USER node
 
 EXPOSE 80
 

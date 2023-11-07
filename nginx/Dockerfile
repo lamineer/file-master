@@ -1,2 +1,4 @@
 FROM nginx:latest
-COPY nginx.conf /etc/nginx/conf.d/custom.conf
+
+COPY ./frontend/. /usr/share/nginx/html/
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
