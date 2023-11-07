@@ -146,8 +146,14 @@ async function generateTable(){
 
 function sortTable(column){
     fileList = fileList.sort((file1, file2) => {
-        if(file1[column] < file2[column]) return -1 * order;
-        if(file1[column] > file2[column]) return 1 * order;
+        if(typeof(file1[column]) == "string"){
+            if(file1[column].toLowerCase() < file2[column].toLowerCase()) return -1 * order;
+            if(file1[column].toLowerCase() > file2[column].toLowerCase()) return 1 * order;
+        } else {
+            if(file1[column] < file2[column]) return -1 * order;
+            if(file1[column] > file2[column]) return 1 * order;
+        }
+
         return 0
     })
     order = -order
