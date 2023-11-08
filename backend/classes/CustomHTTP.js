@@ -20,6 +20,14 @@ class CustomHTTP{
         var method = req.method,
             path = req.url
 
+        //console.log(req)
+        console.log(this.addRoute)
+        console.log(this)
+        this.addRoute("/", "GET", (req, res) => "Random")
+        console.log(this.#routes)
+        res.writeHead(200);
+        res.end("My first server!");
+
         
 
         if(method == "POST"){
@@ -33,7 +41,7 @@ class CustomHTTP{
         }
     }
 
-    addRoute(path, method, controller){
+    addRoute = function (path, method, controller){
         this.#routes[path][method] = controller;
     }
 

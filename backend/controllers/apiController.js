@@ -27,7 +27,7 @@ exports.getFiles = (req, res) => {
         } else {
             var query = "SELECT * FROM userFiles WHERE user_id = ? LIMIT 10"
         }
-        if(page && !isNaN(page)){
+        if(page && !isNaN(page && page < 1000)){
             query += " OFFSET " + ((page-1) * 10)
             console.log(query)
         }
