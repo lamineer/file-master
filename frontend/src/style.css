@@ -34,10 +34,14 @@ table, th, td {
 }
 
 #file-upload{
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 0 10px;
     background-color: dimgray;
     border-radius: 5px;
+}
+
+span.current{
+    color: blue;
 }
 
 .custom-button, #file-upload button, input::file-selector-button{
@@ -85,6 +89,10 @@ table, th, td {
 
 }
 
+#pagination{
+    margin-top: 5px;
+}
+
 #register{
     display: none;
 }
@@ -105,6 +113,14 @@ table, th, td {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.page-number{
+    font-size: 20px;
+}
+
+.page-number:hover{
+    color: blue;
 }
 
 .register-buttons a{

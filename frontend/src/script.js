@@ -1,7 +1,9 @@
 var host = "http://"+window.location.host+"/"
 var fileList = []
     order = 1;
-var params = {}
+var params = { page: 1 };
+
+var pagination = document.getElementById("pagination");
 
 async function logout(){
     const response = await fetch(host+"auth/logout", {
@@ -63,11 +65,11 @@ async function getFiles(){
 }
 
 async function generateTable(){
-    if(!fileList.length) fileList = await getFiles();
+    fileList = await getFiles();
 
     var tableBody = document.getElementById("file-list-body")
     tableBody.innerHTML = ""
-    for(var file of fileList){
+    for(var file of fileList.data){
         var date = new Date(file.uploadTime)
         tableBody.innerHTML += `
         <tr>
@@ -80,14 +82,32 @@ async function generateTable(){
         </tr>
         `
     }
+
+    if(fileList.fileCount > 10){
+        pagination.innerHTML = "";
+
+        for(var page = 1; page <= Math.ceil(fileList.fileCount / 10); page++){
+            var classes = ["page-number"]
+            if(params.page == page) {
+                classes.push("current")
+                pagination.innerHTML += `<span class="${classes.join(" ")}">${page}</span>`;
+            } else {
+                pagination.innerHTML += `<span class="${classes.join(" ")}" onClick="setPage(${page})">${page}</span>`;
+            }
+        }
+    }
 }
 
-async function sortTable(column){
+function setPage(number){
+    params.page = number;
+    generateTable();
+}
+
+function sortTable(column){
     if(order) var sortDir = "ASC"
     else var sortDir = "DESC"
     params.column = column;
     params.sortdir = sortDir;
-    fileList = await getFiles(`column=${column}&sortdir=${sortDir}`)
     generateTable()
     order = !order
 }
@@ -118,7 +138,7 @@ async function uploadFile(){
                 location.reload()
             }
         }
-        
+
     })
 
 }
