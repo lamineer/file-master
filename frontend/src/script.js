@@ -1,59 +1,7 @@
-var host = "http://localhost/"
+var host = "http://"+window.location.host+"/"
 var fileList = []
     order = 1;
-
-async function login(){
-
-    let username = document.getElementById("loginUsername").value;
-    let password = document.getElementById("loginPassword").value;
-
-    const response = await fetch(host+"auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    })
-
-    const result = await response.json()
-
-    if(result.code != 200){
-        setMessage(result);
-    } else {
-        document.cookie = "token=" + result.session_token + ";expires=" + new Date(result.expireTime).toUTCString() + ";";
-        location.href = "/";
-    }
-}
-
-async function register(){
-
-    let username = document.getElementById("registerUsername").value;
-    let password = document.getElementById("registerPassword").value;
-
-    const response = await fetch(host+"auth/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    })
-
-    const result = await response.json();
-    setMessage(result)
-}
-
-async function setMessage(result){
-    const message = document.getElementsByClassName("message")[0];
-    message.innerHTML = result.message;
-    if(result.code == 200) message.style.color = "black";
-    else message.style.color = "red";
-}
+var params = {}
 
 async function logout(){
     const response = await fetch(host+"auth/logout", {
@@ -83,6 +31,13 @@ async function deleteFile(id){
     return result
 }
 
+// Cookie Functions
+function get_cookie(name){
+    return document.cookie.split(';').some(c => {
+        return c.trim().startsWith(name + '=');
+    });
+}
+
 function delete_cookie( name, path, domain ) {
     if( get_cookie( name ) ) {
       document.cookie = name + "=" +
@@ -94,29 +49,9 @@ function downloadFile(id){
     window.open(host+"/api/file/"+id, "_blank")
 }
 
-function showRegister(value){
-    var loginDiv = document.getElementById("login");
-    var registerDiv = document.getElementById("register");
-    if (value == 1) {
-        loginDiv.style.display = "none"
-        registerDiv.style.display = "block"
-        document.getElementsByClassName("login-header")[0].innerHTML = "File Master - Register"
-    } else {
-        loginDiv.style.display = "block"
-        registerDiv.style.display = "none"
-        document.getElementsByClassName("login-header")[0].innerHTML = "File Master - Login"
-    }
-}
-
-function get_cookie(name){
-    return document.cookie.split(';').some(c => {
-        return c.trim().startsWith(name + '=');
-    });
-}
-
-async function getFiles(params = ""){
-    if(params) params = "?" + params
-    const response = await fetch("http://localhost/api/files"+params)
+async function getFiles(){
+    var queryString = Object.keys(params).map(a => `${a}=${params[a]}`).join("&");
+    const response = await fetch("http://localhost/api/files?"+queryString)
 
     const results = await response.json()
 
@@ -150,6 +85,8 @@ async function generateTable(){
 async function sortTable(column){
     if(order) var sortDir = "ASC"
     else var sortDir = "DESC"
+    params.column = column;
+    params.sortdir = sortDir;
     fileList = await getFiles(`column=${column}&sortdir=${sortDir}`)
     generateTable()
     order = !order
@@ -159,55 +96,31 @@ async function uploadFile(){
 
     var uploadForm = document.getElementById("file-upload")
     var file = document.getElementById("file")
-    
+
     const formData = new FormData();
     formData.append('file', file.files[0]);
 
     uploadForm.addEventListener("submit", async (e) => {
         e.preventDefault()
-        const response = await fetch(host+"api/uploadfile", {
-            method: "POST",
-            body: formData
-        })
-    
-        const result = await response.json()
-    
-        if(result.code == 200){
-            console.log(result)
-            location.reload()
-        }
-    })
 
-}
-
-if(document.location.pathname.includes("login")){
-
-    if(document.cookie.includes("token")){
-        location.href = "/";
-    }
-    
-    var loginForm = document.getElementById("loginForm");
-    var registerForm = document.getElementById("registerForm");
-
-    loginForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        try{
-            login();
-        } catch (err) {
-            console.log(err)
-        }
-    })
-
-    registerForm.addEventListener("submit", e => {
-        e.preventDefault();
+        if(file.files[0] == undefined){
+            return;
+        } else {
+            const response = await fetch(host+"api/uploadfile", {
+                method: "POST",
+                body: formData
+            })
         
-        try{
-            register();
-        } catch (err){
-            console.log(err)
+            const result = await response.json()
+        
+            if(result.code == 200){
+                console.log(result)
+                location.reload()
+            }
         }
+        
     })
-} else {
-    generateTable();
+
 }
+
+generateTable();

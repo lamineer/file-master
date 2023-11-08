@@ -42,6 +42,7 @@ exports.getFiles = (req, res) => {
 exports.uploadFile = (req, res) => {
     try{
         var temp = path.resolve(os.tmpdir(), fn.generateString(16));
+        console.log(req)
         if(req.headers["content-type"].includes("multipart/form-data")){
             var writeStream = fs.createWriteStream(temp)
             req.pipe(writeStream) 
@@ -49,6 +50,8 @@ exports.uploadFile = (req, res) => {
                 fileData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
                 if(fileData.fileName == '' && fileData.fileType == ''){
                     res.json({ message: "Filename or fileType is missing!", code: 500})
+                } else if(fileData.data.toString() == "undefined"){
+                    res.json({ message: "Nohting was sent here!", code: 204})
                 } else {
                     var filePath = `./uploads/${res.locals.user_id}/`
                     if(!fs.existsSync(filePath)) fs.mkdirSync(filePath)
@@ -58,7 +61,7 @@ exports.uploadFile = (req, res) => {
                         fileData.fileName = `${tempRegex.groups.fileName} (${count})${tempRegex.groups.fileExtension}`;
                         count++;
                     }
-                    fs.writeFileSync(`${filePath+fileData.fileName}`, fileData.data)
+                    fs.writeFileSync(`${filePath+fileData.fileName}`, fileData.data, err => err)
                     db.run(`INSERT INTO userFiles(fileName, fileType, user_id, fileSize, uploadTime) VALUES (?, ?, ?, ?, ?)`, [
                         fileData.fileName, 
                         fileData.fileType,
@@ -76,11 +79,11 @@ exports.uploadFile = (req, res) => {
                 fs.unlinkSync(temp);
             })
         } else {
-            res.send("This is not a file!")
+            res.json({message: "This is not a file!", code: 500})
         }
     } catch (err) {
         console.error(err)
-        res.send("Error occured while uploading file! Please try again!")
+        res.json({message: "Error occured while uploading file! Please try again!", code: 500 })
     }
 }
 
