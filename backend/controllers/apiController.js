@@ -9,20 +9,28 @@ exports.downloadFile = (req, res) => {
         const { file_id } = req.params;
         var filePath = `./uploads/${res.locals.user_id}/`
         db.get("SELECT * FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id], (err, rows) => {
-            if(err) res.send("Error occured while trying to download file!")
+            if(err) res.json({ message: "Error occured while trying to download file!", code: 500 })
             if(rows) res.download(`${filePath+rows.fileName}`)
-            else res.send("File was not found!")
+            else res.json({ message: "File not found!", code: 404 })
         })
     } catch (err) {
         console.log(err)
-        res.send(err)
+        res.json({ message: "Error occured while trying to download file!", code: 500 })
     }
 } 
 
 exports.getFiles = (req, res) => {
     try{
-        db.all("SELECT * FROM userFiles WHERE user_id = ?", [ res.locals.user_id ], (err, rows) => {
-            if(err) {console.error(err); res.send("Error has occured in query!")}
+        const { column, sortdir } = req.query
+        console.log(req.query)
+        if(column && sortdir){
+            var query = `SELECT * FROM userFiles WHERE user_id = ? ORDER BY ${column} COLLATE NOCASE ${sortdir}`
+        } else {
+            var query = "SELECT * FROM userFiles WHERE user_id = ?"
+        }
+        console.log(query)
+        db.all(query, [ res.locals.user_id ], (err, rows) => {
+            if(err) {console.error(err); res.json({ message: "Error has occured in query!", code: 500})}
             if(rows) res.json(rows)
             else res.json({})
         })
@@ -40,7 +48,7 @@ exports.uploadFile = (req, res) => {
             writeStream.on("finish", () => {
                 fileData = fn.getFileData(fs.readFileSync(temp, (err) => console.log(err)))
                 if(fileData.fileName == '' && fileData.fileType == ''){
-                    res.send("Filename or fileType is missing!")
+                    res.json({ message: "Filename or fileType is missing!", code: 500})
                 } else {
                     var filePath = `./uploads/${res.locals.user_id}/`
                     if(!fs.existsSync(filePath)) fs.mkdirSync(filePath)
@@ -60,7 +68,7 @@ exports.uploadFile = (req, res) => {
                     ], (err) => {
                         if(err) {
                             fs.unlink(`${filePath+fileData.fileName}`, fsErr => console.log(fsErr))
-                            res.send(`${fileData.fileName} upload was unsuccessful`)
+                            res.json({ message: `${fileData.fileName} upload was unsuccessful`, code: 200})
                         }
                         else res.json({ message: `${fileData.fileName} uploaded! Total file size: ${fileData.fileSize} bytes`, code: 200})
                     })
@@ -81,19 +89,19 @@ exports.deleteFile = (req, res) => {
         const { file_id } = req.params;
         var filePath = `./uploads/${res.locals.user_id}/`
         db.get("SELECT * FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err, rows) => {
-            if(err) res.send("Couldn't find the file, that you're trying to delete")
+            if(err) res.json({message: "Couldn't find the file, that you're trying to delete", code: 404})
             else {
                 db.run("DELETE FROM userFiles WHERE id = ? AND user_id = ?", [ file_id, res.locals.user_id ], (err) => {
-                    if(err) res.send("Error occured while deleting file! Please try again!")
+                    if(err) res.json({message: "Error occured while deleting file! Please try again!", code: 500})
                     else {
                         fs.unlink(`${filePath+rows.fileName}`, fsErr => console.log(fsErr));
-                        res.send("File was deleted successfuly!")
+                        res.json({message: "File was deleted successfuly!", code: 200})
                     }
                 })
             }
         })
     } catch (err) {
         console.log(err)
-        res.send("Error occured while deleting file! Please try again!")
+        res.json({message: "Error occured while deleting file! Please try again!", code: 500})
     }
 }

@@ -100,10 +100,6 @@ table, th, td {
     margin: 5px;
 }
 
-.login-message{
-    color: red;
-}
-
 .register-buttons{
     margin-top: 10px;
     display: flex;

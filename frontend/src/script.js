@@ -20,8 +20,8 @@ async function login(){
 
     const result = await response.json()
 
-    if(result.error){
-        document.getElementsByClassName("login-message")[0].innerHTML = result.error;
+    if(result.code != 200){
+        setMessage(result);
     } else {
         document.cookie = "token=" + result.session_token + ";expires=" + new Date(result.expireTime).toUTCString() + ";";
         location.href = "/";
@@ -45,12 +45,14 @@ async function register(){
     })
 
     const result = await response.json();
-    console.log(result)
-    const message = document.getElementsByClassName("register-message")[0]
-    message.innerHTML = result.message;
-    if(result.code == 200) message.style.color = "black"
-    else message.style.color = "red"
+    setMessage(result)
+}
 
+async function setMessage(result){
+    const message = document.getElementsByClassName("message")[0];
+    message.innerHTML = result.message;
+    if(result.code == 200) message.style.color = "black";
+    else message.style.color = "red";
 }
 
 async function logout(){
@@ -112,8 +114,9 @@ function get_cookie(name){
     });
 }
 
-async function getFiles(){
-    const response = await fetch("http://localhost/api/files")
+async function getFiles(params = ""){
+    if(params) params = "?" + params
+    const response = await fetch("http://localhost/api/files"+params)
 
     const results = await response.json()
 
@@ -144,20 +147,12 @@ async function generateTable(){
     }
 }
 
-function sortTable(column){
-    fileList = fileList.sort((file1, file2) => {
-        if(typeof(file1[column]) == "string"){
-            if(file1[column].toLowerCase() < file2[column].toLowerCase()) return -1 * order;
-            if(file1[column].toLowerCase() > file2[column].toLowerCase()) return 1 * order;
-        } else {
-            if(file1[column] < file2[column]) return -1 * order;
-            if(file1[column] > file2[column]) return 1 * order;
-        }
-
-        return 0
-    })
-    order = -order
+async function sortTable(column){
+    if(order) var sortDir = "ASC"
+    else var sortDir = "DESC"
+    fileList = await getFiles(`column=${column}&sortdir=${sortDir}`)
     generateTable()
+    order = !order
 }
 
 async function uploadFile(){

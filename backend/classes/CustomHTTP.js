@@ -5,7 +5,7 @@ class CustomHTTP{
     // Variables for CustomHTTP
     #HOST = "" 
     #PORT = 0
-    routes = {}
+    #routes = {}
 
     constructor(HOST, PORT){
         this.#HOST = HOST;
@@ -20,6 +20,8 @@ class CustomHTTP{
         var method = req.method,
             path = req.url
 
+        
+
         if(method == "POST"){
             req.on("data", function(d){
                 console.log(d.toString())
@@ -32,7 +34,7 @@ class CustomHTTP{
     }
 
     addRoute(path, method, controller){
-        
+        this.#routes[path][method] = controller;
     }
 
     startWebServer(){
